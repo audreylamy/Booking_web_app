@@ -1,27 +1,15 @@
 <template>
   <div id="app">
-    <Room msg="Welcome to Your Vue.js App"/>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Room from './components/Room.vue'
-
 export default {
-  name: 'app',
-  components: {
-    Room
-  }
+  name: 'app'
 }
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style lang="scss">
+  @import 'src/assets/stylesheets/main.scss';
 </style>

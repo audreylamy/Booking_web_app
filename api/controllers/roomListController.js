@@ -5,7 +5,7 @@ var mongoose = require('mongoose'),
 
 
 exports.list_all_rooms = function (req, res) {
-
+    console.log('here')
     Room.find({}, function (err, room) {
         if (err)
             res.send(err);

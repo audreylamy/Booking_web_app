@@ -1,0 +1,15 @@
+.container__header {
+	background-image:linear-gradient($color-primary-light-1, $color-primary);
+	display: flex;
+	justify-content: space-between;
+	color: $white;
+	opacity: 0.9;
+	padding: 1rem;
+	font-size: 1.3rem;
+	font-family: 'Allerta Stencil', sans-serif;
+
+	&--logo {
+		width: 7%;
+		height: 25%;
+	}
+}
