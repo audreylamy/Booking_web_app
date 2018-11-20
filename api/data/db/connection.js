@@ -15,14 +15,14 @@ mongoose.connect(mongoURI, {useCreateIndex: true, useNewUrlParser: true}).then(
 );
 
 //INSERT ROOMS inside BDD
-for (var i = 0; i < roomJSON.rooms.length; i++) {
-   	const newRoom = new Room(roomJSON.rooms[i])
-    newRoom.save(function(err) {
-        if (err) {
-            console.log(err);
-            res.sendStatus(500);
-        }
-    })
-}
+// for (var i = 0; i < roomJSON.rooms.length; i++) {
+//    	const newRoom = new Room(roomJSON.rooms[i])
+//     newRoom.save(function(err) {
+//         if (err) {
+//             console.log(err);
+//             res.sendStatus(500);
+//         }
+//     })
+// }
 
 module.exports = mongoose;
