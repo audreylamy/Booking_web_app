@@ -93,30 +93,34 @@ export default {
 			const hour = submitEvent.target.elements.hour.value;
 			if (date && hour) {
 				const res = await axios.get('http://localhost:3000/books')
-				console.log(res.data)
+				this.date = date;
+				this.hour = hour;
 				console.log('date', date)
 				console.log('hour', hour)
-				const availableRoom = [];
-				const allBooking = res.data;
+				console.log(res.data)
+				if (res.data.length !== 0) {
+					console.log('here')
+					const notAvailableRoom = [];
+					const allBooking = res.data;
 					for (var i = 0; i < allBooking.length; i++) {
-						if (allBooking[1].date === date && allBooking.hour === hour) {
-							availableRoom.push(allBooking[1]);
+						if (allBooking[i].date === date && allBooking[i].hour === hour) {
+							notAvailableRoom.push(allBooking[i]);
 						}
 					}
-				
-					// this.date = date;
-					// this.hour = hour;
-					// izitoast.success({
-					// 	message: "You can choose a room",
-					// 	position: 'topRight'
-					// });
+					console.log(notAvailableRoom)
+					console.log(this.rooms)
+				} else {
+					izitoast.success({
+						message: "You can book a room",
+						position: 'topRight'
+					});
 					
 					// if (res.data.length != 0) {
 					// 	this.booking = res.data
 					// } 
-					// verif dans BDD
+					// //verif dans BDD
 					// const res = await axios.post('http://localhost:3000/books', {  })
-				// }
+				}
 			} else {
 				izitoast.error({
 						message: "Please enter a date and an hour",

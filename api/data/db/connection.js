@@ -4,8 +4,8 @@ const mongoURI = keys.mongoURI;
 const Room = require('../../models/roomListModel')
 const roomJSON = require('../rooms.json')
 
-// console.log(roomJSON.rooms.length);
-// console.log(roomJSON.rooms)
+console.log(roomJSON.rooms.length);
+console.log(roomJSON.rooms)
 
 mongoose.Promise = global.Promise;
 
