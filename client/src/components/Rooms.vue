@@ -22,8 +22,17 @@
 					</select>
 					<button type="submit" value="submit" >Submit</button>
 			</form>
+				<p>Choose your equipement:</p>
+					<div>
+						<input type="checkbox" name="tv" v-on:click="filter()">
+						<label for="scales">TV</label>
+					</div>
+					<div>
+						<input type="checkbox" name="retro" v-on:click="filter()">
+						<label for="Retro">Retro projecteur</label>
+					</div>
 		</div>
-		<div class="rooms">
+		<div v-if="this.roomBook === false" class="rooms">
 			<h4 class="rooms__title">Book your meeting room</h4>
 			<div class="rooms__allCard">
 				<div class="card" v-for="room in rooms" :key="room.name">
@@ -42,6 +51,9 @@
 				</div>
 			</div>
 		</div>
+		<div v-else class="rooms">
+			<div class="room_card">Thanks, you have booked the room {{ roomBookInfos.name }} at {{ roomBookInfos.hour}} ({{ roomBookInfos.date }}) </div>
+		</div>
   </div>
 </template>
 
@@ -50,6 +62,7 @@ import roomsJSON from '../../../api/data/rooms.json';
 import axios from 'axios';
 import izitoast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css'
+import tools from '../utils/tools'
 
 export default {
     name: 'rooms',
@@ -57,6 +70,8 @@ export default {
 	data() {
 		return {
 			rooms: null,
+			roomBook: false,
+			roomBookInfos: null,
 			date:  null,
 			hour: null
 		};
@@ -68,19 +83,15 @@ export default {
 
 	methods: {
 		book: async function(roomName) {
-			console.log(this.date)
 			if (this.date && this.hour) {
-				// add reservations dans BDD
+				// add reservations inside BDD
 				const res = await axios.post('http://localhost:3000/books', { "date": this.date, "hour": this.hour, "name": roomName })
 				if (res.data) {
-					console.log(res.data.message)
-					izitoast.success({
-						message: res.data.message,
-						position: 'topRight'
-					});
+					this.roomBook = true
+					this.roomBookInfos = { name: roomName, date: this.date, hour: this.hour }
+					console.log(this.roomBookInfos)
 				}
 			} else {
-				//izitoast please choose a date and an hour
 				izitoast.error({
 					message: "Please enter a date and an hour",
 					position: 'topRight'
@@ -89,37 +100,32 @@ export default {
 		},
 
 		handleSubmit: async function(submitEvent) {
+			this.roomBook = false;
 			const date = submitEvent.target.elements.date.value;
 			const hour = submitEvent.target.elements.hour.value;
+
 			if (date && hour) {
 				const res = await axios.get('http://localhost:3000/books')
 				this.date = date;
 				this.hour = hour;
-				console.log('date', date)
-				console.log('hour', hour)
-				console.log(res.data)
+				this.rooms = roomsJSON.rooms
 				if (res.data.length !== 0) {
-					console.log('here')
-					const notAvailableRoom = [];
-					const allBooking = res.data;
-					for (var i = 0; i < allBooking.length; i++) {
-						if (allBooking[i].date === date && allBooking[i].hour === hour) {
-							notAvailableRoom.push(allBooking[i]);
-						}
+					const allReservation = res.data;
+					// find all room who are book on this date and hour
+					const bookingRoom = tools.findBookingRoom(allReservation, date, hour)
+					// find available room 
+					const newRoom = tools.findAvailableRoom(bookingRoom, this.rooms)
+					if (newRoom.length > 0) {
+						this.rooms = newRoom
+					} else {
+						this.rooms = roomsJSON.rooms
 					}
-					console.log(notAvailableRoom)
-					console.log(this.rooms)
+					
 				} else {
 					izitoast.success({
 						message: "You can book a room",
 						position: 'topRight'
 					});
-					
-					// if (res.data.length != 0) {
-					// 	this.booking = res.data
-					// } 
-					// //verif dans BDD
-					// const res = await axios.post('http://localhost:3000/books', {  })
 				}
 			} else {
 				izitoast.error({
