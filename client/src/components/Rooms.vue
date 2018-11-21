@@ -32,6 +32,7 @@
 						<label for="Retro">Retro projecteur</label>
 					</div>
 		</div>
+		
 		<div v-if="this.roomBook === false" class="rooms">
 			<h4 class="rooms__title">Book your meeting room</h4>
 			<div class="rooms__allCard">
