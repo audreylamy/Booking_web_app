@@ -87,6 +87,7 @@ export default {
 				});
 			}
 		},
+		
 
 		handleSubmit: async function(submitEvent) {
 			const date = submitEvent.target.elements.date.value;
