@@ -5,7 +5,6 @@ var mongoose = require('mongoose'),
 
 
 exports.list_all_books = function (req, res) {
-    console.log('here')
     Book.find({}, (err, book) => {
         console.log('here1')
         if (err)

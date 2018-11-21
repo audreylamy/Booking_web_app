@@ -1,12 +1,13 @@
 <template>
-	<div class="container__body">	
+	<div class="container__body">
 		<div class="search">
-			<form @submit.prevent="handleSubmit">
-				<label>Choose a date:</label>
-					<input type="date" max="2019-01-31" min="2018-11-20" name="date">
-				<label>Choose an Hour:</label>
-					<select id="pet-select" name="hour">
-							<option value="">--Please choose an hour</option>
+			<div class="search--bydate">
+				<form @submit.prevent="handleSubmit">
+					<label class="label">Choose a date: </label>
+						<input type="date" max="2019-01-31" min="2018-11-20" name="date"><br></br>
+					<label class="label">Choose an Hour: </label>
+						<select id="pet-select" name="hour">
+							<option value="">Please choose an hour</option>
 							<option value="8h-9h">8h-9h</option>
 							<option value="9h-10h">9h-10h</option>
 							<option value="10h-11h">10h-11h</option>
@@ -19,29 +20,40 @@
 							<option value="17h-18h">17h-18h</option>
 							<option value="18h-19h">18h-19h</option>
 							<option value="19h-20h">19h-20h</option>
-					</select>
-					<button type="submit" value="submit" >Submit</button>
-			</form>
-		</div>
-		<div class="rooms">
-			<h4 class="rooms__title">Book your meeting room</h4>
-			<div class="rooms__allCard">
-				<div class="card" v-for="room in rooms" :key="room.name">
-					<div class="card__title">
-						<span class="card__title--text">{{ room.name }}</span>
+						</select> <br></br>
+						<button type="submit" value="submit" >Submit</button>
+				</form>
+			</div>
+			<div v-if="this.submit && this.date && this.hour" class="search--filter">
+				<p class="label">Choose your equipement:</p>
+					<div>
+						<input 
+							type="checkbox" 
+							name="tv"
+							value="TV"
+							v-model="checkedEquipement"
+							@click="filter"
+							>
+						<label for="scales">TV</label>
 					</div>
-					<div class="card__capacity">
-						<span class="card__capacity--text">Capacity: {{ room.capacity }}</span>
+					<div>
+						<input 
+							type="checkbox" 
+							name="retro" 
+							value="Retro Projecteur"
+							v-model="checkedEquipement"
+							@click="filter"
+						>
+						<label for="Retro">Retro projecteur</label>
 					</div>
-					<div class="card__equipements" v-for="(item, i) in room.equipements" :key="item.name">
-						<span class="card__equipements--item">Equipement {{i + 1}}: {{ item.name }}</span>
-					</div>
-					<div class="card__button">
-						<button type="button" v-on:click="book(room.name)">Book {{ room.name }}</button>
-					</div>
-				</div>
 			</div>
 		</div>
+		<DisplayRooms 
+			:roombook="roomBook"
+			:rooms="rooms"
+			:roomBookInfos="roomBookInfos"
+			:click="book"
+		></DisplayRooms>
   </div>
 </template>
 
@@ -49,38 +61,65 @@
 import roomsJSON from '../../../api/data/rooms.json';
 import axios from 'axios';
 import izitoast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css'
+import 'izitoast/dist/css/iziToast.min.css';
+import tools from '../utils/tools';
+import DisplayRooms from './DisplayRooms.vue';
 
 export default {
-    name: 'rooms',
+	name: 'rooms',
+
+	 components: {
+		DisplayRooms
+  	},
 
 	data() {
 		return {
 			rooms: null,
+			roomsDate: null,
+			roomBook: false,
+			roomBookInfos: null,
+			submit: false,
 			date:  null,
-			hour: null
+			hour: null,
+			checkedEquipement: []
 		};
 	},
 
-	async created() {
+	created() {
 		this.rooms = roomsJSON.rooms;
 	},
 
 	methods: {
-		book: async function(roomName) {
-			console.log(this.date)
-			if (this.date && this.hour) {
-				// add reservations dans BDD
-				const res = await axios.post('http://localhost:3000/books', { "date": this.date, "hour": this.hour, "name": roomName })
-				if (res.data) {
-					console.log(res.data.message)
-					izitoast.success({
-						message: res.data.message,
-						position: 'topRight'
-					});
+
+		filter: function(e) {
+			if (this.checkedEquipement.includes(e.target.value)) {
+				// delete equipement
+				if (this.checkedEquipement.length === 1) {
+					this.rooms = this.roomsDate;
+				} else {
+					const item = this.checkedEquipement.filter(item => item !== e.target.value)
+					const newRoom = tools.findRoomFilter(this.roomsDate, item[0])
+					this.rooms = newRoom;
 				}
 			} else {
-				//izitoast please choose a date and an hour
+				// select by equipement
+				const newRoom = tools.findRoomFilter(this.rooms, e.target.value)
+				if (!this.checkedEquipement.includes(e.target.value)) {
+					this.checkedEquipement.push(e.target.value)
+				}
+				this.rooms = newRoom
+			}
+		},
+
+		book: async function(roomName) {
+			if (this.date && this.hour) {
+				// add reservations inside BDD
+				const res = await axios.post('http://localhost:3000/books', { "date": this.date, "hour": this.hour, "name": roomName })
+				if (res.data) {
+					this.roomBook = true
+					this.roomBookInfos = { name: roomName, date: this.date, hour: this.hour }
+				}
+			} else {
 				izitoast.error({
 					message: "Please enter a date and an hour",
 					position: 'topRight'
@@ -90,34 +129,35 @@ export default {
 		
 
 		handleSubmit: async function(submitEvent) {
+			this.roomBook = false;
+			this.submit = true;
 			const date = submitEvent.target.elements.date.value;
 			const hour = submitEvent.target.elements.hour.value;
+
 			if (date && hour) {
 				const res = await axios.get('http://localhost:3000/books')
-				console.log(res.data)
-				console.log('date', date)
-				console.log('hour', hour)
-				const availableRoom = [];
-				const allBooking = res.data;
-					for (var i = 0; i < allBooking.length; i++) {
-						if (allBooking[1].date === date && allBooking.hour === hour) {
-							availableRoom.push(allBooking[1]);
-						}
+				this.date = date;
+				this.hour = hour;
+				if (res.data.length !== 0) {
+					const allReservation = res.data;
+					// find all room who are book on this date and hour
+					const bookingRoom = tools.findBookingRoom(allReservation, date, hour)
+					// find available room 
+					const newRoom = tools.findAvailableRoom(bookingRoom, this.rooms)
+					if (newRoom.length > 0) {
+						this.rooms = newRoom
+						this.roomsDate = newRoom
+					} else {
+						this.rooms = roomsJSON.rooms
+						this.roomsDate = roomsJSON.rooms
 					}
-				
-					// this.date = date;
-					// this.hour = hour;
-					// izitoast.success({
-					// 	message: "You can choose a room",
-					// 	position: 'topRight'
-					// });
 					
-					// if (res.data.length != 0) {
-					// 	this.booking = res.data
-					// } 
-					// verif dans BDD
-					// const res = await axios.post('http://localhost:3000/books', {  })
-				// }
+				} else {
+					izitoast.success({
+						message: "You can book a room",
+						position: 'topRight'
+					});
+				}
 			} else {
 				izitoast.error({
 						message: "Please enter a date and an hour",
