@@ -1,12 +1,13 @@
 <template>
-	<div class="container__body">	
+	<div class="container__body">
 		<div class="search">
-			<form @submit.prevent="handleSubmit">
-				<label>Choose a date:</label>
-					<input type="date" max="2019-01-31" min="2018-11-20" name="date">
-				<label>Choose an Hour:</label>
-					<select id="pet-select" name="hour">
-							<option value="">--Please choose an hour</option>
+			<div class="search--bydate">
+				<form @submit.prevent="handleSubmit">
+					<label class="label">Choose a date: </label>
+						<input id="myDate" type="date" max="2019-01-31" min="2018-11-20" name="date"><br></br>
+					<label class="label">Choose an Hour: </label>
+						<select id="pet-select" name="hour">
+							<option value="">Please choose an hour</option>
 							<option value="8h-9h">8h-9h</option>
 							<option value="9h-10h">9h-10h</option>
 							<option value="10h-11h">10h-11h</option>
@@ -19,70 +20,102 @@
 							<option value="17h-18h">17h-18h</option>
 							<option value="18h-19h">18h-19h</option>
 							<option value="19h-20h">19h-20h</option>
-					</select>
-					<button type="submit" value="submit" >Submit</button>
-			</form>
-				<p>Choose your equipement:</p>
+						</select> <br></br>
+						<button class="button" type="submit" value="submit">Check availability</button>
+				</form>
+			</div>
+			<div v-if="this.submit && this.date && this.hour" class="search--filter">
+				<p class="label">Choose your equipement:</p>
 					<div>
-						<input type="checkbox" name="tv" v-on:click="filter()">
+						<input 
+							type="checkbox" 
+							name="tv"
+							value="TV"
+							v-model="checkedEquipement"
+							@click="filter"
+							>
 						<label for="scales">TV</label>
 					</div>
 					<div>
-						<input type="checkbox" name="retro" v-on:click="filter()">
+						<input 
+							type="checkbox" 
+							name="retro" 
+							value="Retro Projecteur"
+							v-model="checkedEquipement"
+							@click="filter"
+						>
 						<label for="Retro">Retro projecteur</label>
 					</div>
-		</div>
-		
-		<div v-if="this.roomBook === false" class="rooms">
-			<h4 class="rooms__title">Book your meeting room</h4>
-			<div class="rooms__allCard">
-				<div class="card" v-for="room in rooms" :key="room.name">
-					<div class="card__title">
-						<span class="card__title--text">{{ room.name }}</span>
-					</div>
-					<div class="card__capacity">
-						<span class="card__capacity--text">Capacity: {{ room.capacity }}</span>
-					</div>
-					<div class="card__equipements" v-for="(item, i) in room.equipements" :key="item.name">
-						<span class="card__equipements--item">Equipement {{i + 1}}: {{ item.name }}</span>
-					</div>
-					<div class="card__button">
-						<button type="button" v-on:click="book(room.name)">Book {{ room.name }}</button>
-					</div>
-				</div>
 			</div>
 		</div>
-		<div v-else class="rooms">
-			<div class="room_card">Thanks, you have booked the room {{ roomBookInfos.name }} at {{ roomBookInfos.hour}} ({{ roomBookInfos.date }}) </div>
-		</div>
+		<DisplayRooms 
+			:roombook="roomBook"
+			:rooms="rooms"
+			:roomBookInfos="roomBookInfos"
+			:click="book"
+		></DisplayRooms>
   </div>
 </template>
 
 <script>
-import roomsJSON from '../../../api/data/rooms.json';
+import roomsJSON from '../../../rooms.json';
 import axios from 'axios';
 import izitoast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css'
-import tools from '../utils/tools'
+import 'izitoast/dist/css/iziToast.min.css';
+import tools from '../utils/tools';
+import DisplayRooms from './DisplayRooms.vue';
 
 export default {
-    name: 'rooms',
+	name: 'rooms',
+
+	 components: {
+		DisplayRooms
+  	},
 
 	data() {
 		return {
 			rooms: null,
+			roomsDate: null,
 			roomBook: false,
 			roomBookInfos: null,
+			submit: false,
 			date:  null,
-			hour: null
+			hour: null,
+			checkedEquipement: []
 		};
 	},
 
-	async created() {
+	mounted() {
+		const newdate = new Date().toISOString().split("T")[0];
+		document.getElementById('myDate').setAttribute("min", newdate);
+	},
+
+	created() {
 		this.rooms = roomsJSON.rooms;
 	},
 
 	methods: {
+
+		filter: function(e) {
+			if (this.checkedEquipement.includes(e.target.value)) {
+				// delete equipement
+				if (this.checkedEquipement.length === 1) {
+					this.rooms = this.roomsDate;
+				} else {
+					const item = this.checkedEquipement.filter(item => item !== e.target.value)
+					const newRoom = tools.findRoomFilter(this.roomsDate, item[0])
+					this.rooms = newRoom;
+				}
+			} else {
+				// select by equipement
+				const newRoom = tools.findRoomFilter(this.rooms, e.target.value)
+				if (!this.checkedEquipement.includes(e.target.value)) {
+					this.checkedEquipement.push(e.target.value)
+				}
+				this.rooms = newRoom
+			}
+		},
+
 		book: async function(roomName) {
 			if (this.date && this.hour) {
 				// add reservations inside BDD
@@ -90,7 +123,6 @@ export default {
 				if (res.data) {
 					this.roomBook = true
 					this.roomBookInfos = { name: roomName, date: this.date, hour: this.hour }
-					console.log(this.roomBookInfos)
 				}
 			} else {
 				izitoast.error({
@@ -99,9 +131,11 @@ export default {
 				});
 			}
 		},
+		
 
 		handleSubmit: async function(submitEvent) {
 			this.roomBook = false;
+			this.submit = true;
 			const date = submitEvent.target.elements.date.value;
 			const hour = submitEvent.target.elements.hour.value;
 
@@ -109,17 +143,25 @@ export default {
 				const res = await axios.get('http://localhost:3000/books')
 				this.date = date;
 				this.hour = hour;
-				this.rooms = roomsJSON.rooms
+				this.rooms = roomsJSON.rooms;
 				if (res.data.length !== 0) {
 					const allReservation = res.data;
-					// find all room who are book on this date and hour
+					// find all rooms which are booked on this date and hour
 					const bookingRoom = tools.findBookingRoom(allReservation, date, hour)
 					// find available room 
 					const newRoom = tools.findAvailableRoom(bookingRoom, this.rooms)
-					if (newRoom.length > 0) {
+					if (newRoom.length === 0) {
+						this.rooms = null
+						this.roomsDate = null
+						this.roomBook = null
+					}
+					else if (newRoom.length > 0) {
 						this.rooms = newRoom
-					} else {
+						this.roomsDate = newRoom
+					}
+					else {
 						this.rooms = roomsJSON.rooms
+						this.roomsDate = roomsJSON.rooms
 					}
 					
 				} else {

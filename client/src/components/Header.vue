@@ -1,6 +1,8 @@
 <template>
   <div class="container__header">
-	<img class="container__header--logo" :src="logo" width="10"/>
+		<div class="container__header-logo">
+			<img class="container__header-logo--img" :src="logo" width="120"/>
+		</div>
   </div>
 </template>
 

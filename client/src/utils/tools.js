@@ -1,3 +1,5 @@
+
+// find all room who are book on this date and hour
 function findBookingRoom(allReservation, date, hour) {
 	const bookingRoom = [];
 	for (var i = 0; i < allReservation.length; i++) {
@@ -8,8 +10,12 @@ function findBookingRoom(allReservation, date, hour) {
 	return bookingRoom;
 }
 
+// find available room by date and hour
 function findAvailableRoom(bookingRoom, allRoom) {
 	const newRoom = [];
+	if (bookingRoom.length === 0) {
+		return allRoom;
+	}
 	for (var k = 0; k < allRoom.length; k++) {
 		let bools = 0;
 		for (var j = 0; j < bookingRoom.length; j++) {
@@ -25,7 +31,23 @@ function findAvailableRoom(bookingRoom, allRoom) {
 	return newRoom;
 }
 
+//filter by equipements
+function findRoomFilter(allRoom, item) {
+	const newRoom = [];
+	if (allRoom === null || allRoom === undefined)
+		return;
+	for (var i = 0; i < allRoom.length; i++) {
+		for (var j = 0; j < allRoom[i].equipements.length; j++) {
+			if (allRoom[i].equipements[j].name === item) {
+				newRoom.push(allRoom[i])
+			}
+		}
+	}
+	return newRoom
+}
+
 module.exports = {
 	findBookingRoom : findBookingRoom,
-	findAvailableRoom : findAvailableRoom
+	findAvailableRoom : findAvailableRoom,
+	findRoomFilter : findRoomFilter
 }
