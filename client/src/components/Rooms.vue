@@ -101,13 +101,26 @@ export default {
 		filter: function(e) {
 			if (this.checkedEquipement.includes(e.target.value)) {
 				// delete equipement
-				if (this.checkedEquipement.length === 1) {
-					this.rooms = this.roomsDate;
+				console.log(this.roomsDate)
+				if (this.roomsDate === undefined || this.roomsDate === null) {
+					// if no room is booked inside BDD
+					if (this.checkedEquipement.length === 1) {
+						this.rooms = roomsJSON.rooms;
+					} else {
+						const item = this.checkedEquipement.filter(item => item !== e.target.value)
+						const newRoom = tools.findRoomFilter(roomsJSON.rooms, item[0])
+						this.rooms = newRoom;
+					}	
 				} else {
-					const item = this.checkedEquipement.filter(item => item !== e.target.value)
-					const newRoom = tools.findRoomFilter(this.roomsDate, item[0])
-					this.rooms = newRoom;
-				}
+					// if at least one room is booked inside BDD
+					if (this.checkedEquipement.length === 1) {
+						this.rooms = this.roomsDate;
+					} else {
+						const item = this.checkedEquipement.filter(item => item !== e.target.value)
+						const newRoom = tools.findRoomFilter(this.roomsDate, item[0])
+						this.rooms = newRoom;
+					}		
+				} 
 			} else {
 				// select by equipement
 				const newRoom = tools.findRoomFilter(this.rooms, e.target.value)
@@ -115,7 +128,7 @@ export default {
 					this.checkedEquipement.push(e.target.value)
 				}
 				this.rooms = newRoom
-			}
+			}	
 		},
 
 		book: async function(roomName) {
