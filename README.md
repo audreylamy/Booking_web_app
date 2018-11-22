@@ -13,11 +13,15 @@ docker pull mongo
 docker volume create data
 docker run --name=mongodb -d -p 27017:27017 -v data:/data/db mongo
 ```
-2/ Install npm (inside server et client)
+2/ Git clone the repository
+```
+https://github.com/audreylamy/Stationf_test.git
+```
+3/ Install npm (inside server et client)
 ```
 npm install
 ```
-3/ Launch app
+4/ Launch app
   + Inside server folder:
 ```
 node server.js
@@ -26,7 +30,7 @@ node server.js
 ```
 npm run serve
 ```
-4/ Go to http://localhost:8080/
+5/ Go to http://localhost:8080/
 
 ## Technology stack
 
