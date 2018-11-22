@@ -1,27 +1,30 @@
 # Stationf Test
 
 ## Overview
-💥 Booking app (meeting room)
+🗓 Booking app (meeting room)
 
 ## Init app
 
 1/ Init mongo DB with docker :
 ```
-docker-machine create --driver virtualbox Char
+docker-machine create --driver virtualbox {{NAME}}
+eval $(docker-machine env {{NAME}})
 docker pull mongo
 docker volume create data
 docker run --name=mongodb -d -p 27017:27017 -v data:/data/db mongo
 ```
-2/ Install npm
+2/ Install npm (inside server et client)
 ```
-Make an npm install inside server folder and client
+npm install
 ```
 3/ Launch app
+  + Inside server folder:
 ```
-Inside server folder : node server.js
+node server.js
 ```
++ Inside client folder:
 ```
-Inside client folder : npm run serve
+npm run serve
 ```
 4/ Go to http://localhost:8080/
 
