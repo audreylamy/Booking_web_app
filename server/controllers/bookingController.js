@@ -46,7 +46,7 @@ exports.create_a_book = function (req, res) {
                 } else {
                     obj.booking.push(newBooking); 
                     var json = JSON.stringify(obj); 
-                    fs.writeFile('myjsonfile.json', json, function(err) {
+                    fs.writeFile('bookingFile.json', json, function(err) {
                         if (err) throw err;
                         res.json({message: "Your reservation is register"})    
                     })
