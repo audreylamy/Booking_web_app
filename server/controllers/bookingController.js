@@ -38,7 +38,7 @@ exports.create_a_book = function (req, res) {
                         obj = JSON.parse(data); //now it is an object
                         obj.booking.push(newBooking); //add some data
                         json = JSON.stringify(obj); //convert it back to json
-                        fs.writeFile('myjsonfile.json', json, function(err) {
+                        fs.writeFile('bookingFile.json', json, function(err) {
                             if (err) throw err;
                             res.json({message: "Your reservation is register"})    
                         })
