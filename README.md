@@ -13,6 +13,14 @@ docker pull mongo
 docker volume create data
 docker run --name=mongodb -d -p 27017:27017 -v data:/data/db mongo
 ```
+  + See BDD:
+  ```
+  docker exec -it mongodb bash
+  open mongo with "mongo" in the shell
+  use stationf
+  db.books.find()
+  ```
+  
 2/ Git clone the repository
 ```
 https://github.com/audreylamy/Stationf_test.git
