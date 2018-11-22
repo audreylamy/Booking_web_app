@@ -101,7 +101,6 @@ export default {
 		filter: function(e) {
 			if (this.checkedEquipement.includes(e.target.value)) {
 				// delete equipement
-				console.log(this.roomsDate)
 				if (this.roomsDate === undefined || this.roomsDate === null) {
 					// if no room is booked inside BDD
 					if (this.checkedEquipement.length === 1) {
