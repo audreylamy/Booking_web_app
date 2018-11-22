@@ -4,7 +4,7 @@
 			<div class="search--bydate">
 				<form @submit.prevent="handleSubmit">
 					<label class="label">Choose a date: </label>
-						<input id="myDate" type="date" max="2019-01-31" min="2018-11-20" name="date"><br></br>
+						<input id="myDate" type="date" max="2019-01-31" min="2018-11-20" name="date"><br><br />
 					<label class="label">Choose an Hour: </label>
 						<select id="pet-select" name="hour">
 							<option value="">Please choose an hour</option>
@@ -20,7 +20,7 @@
 							<option value="17h-18h">17h-18h</option>
 							<option value="18h-19h">18h-19h</option>
 							<option value="19h-20h">19h-20h</option>
-						</select> <br></br>
+						</select> <br><br />
 						<button class="button" type="submit" value="submit">Check availability</button>
 				</form>
 			</div>
@@ -32,6 +32,7 @@
 							name="tv"
 							value="TV"
 							v-model="checkedEquipement"
+							checked="this.state.selected"
 							@click="filter"
 							>
 						<label for="scales">TV</label>
@@ -42,6 +43,7 @@
 							name="retro" 
 							value="Retro Projecteur"
 							v-model="checkedEquipement"
+							checked="item.state.selected"
 							@click="filter"
 						>
 						<label for="Retro">Retro projecteur</label>
@@ -119,7 +121,7 @@ export default {
 		book: async function(roomName) {
 			if (this.date && this.hour) {
 				// add reservations inside BDD
-				const res = await axios.post('http://localhost:3000/books', { "date": this.date, "hour": this.hour, "name": roomName })
+				const res = await axios.post('http://localhost:3000/api/books', { "date": this.date, "hour": this.hour, "name": roomName })
 				if (res.data) {
 					this.roomBook = true
 					this.roomBookInfos = { name: roomName, date: this.date, hour: this.hour }
@@ -140,7 +142,7 @@ export default {
 			const hour = submitEvent.target.elements.hour.value;
 
 			if (date && hour) {
-				const res = await axios.get('http://localhost:3000/books')
+				const res = await axios.get('http://localhost:3000/api/books')
 				this.date = date;
 				this.hour = hour;
 				this.rooms = roomsJSON.rooms;
@@ -158,10 +160,18 @@ export default {
 					else if (newRoom.length > 0) {
 						this.rooms = newRoom
 						this.roomsDate = newRoom
+						izitoast.success({
+							message: "You can book a room",
+							position: 'topRight'
+						});
 					}
 					else {
 						this.rooms = roomsJSON.rooms
 						this.roomsDate = roomsJSON.rooms
+						izitoast.success({
+							message: "You can book a room",
+							position: 'topRight'
+						});
 					}
 					
 				} else {
