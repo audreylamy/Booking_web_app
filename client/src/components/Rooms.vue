@@ -70,9 +70,9 @@ import DisplayRooms from './DisplayRooms.vue';
 export default {
 	name: 'rooms',
 
-	 components: {
+	components: {
 		DisplayRooms
-  	},
+		},
 
 	data() {
 		return {
