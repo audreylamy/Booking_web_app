@@ -136,6 +136,7 @@ export default {
 		
 
 		handleSubmit: async function(submitEvent) {
+			this.checkedEquipement = []
 			this.roomBook = false;
 			this.submit = true;
 			const date = submitEvent.target.elements.date.value;
