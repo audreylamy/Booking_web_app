@@ -76,8 +76,9 @@ export default {
 
 	data() {
 		return {
-			rooms: null,
-			roomsDate: null,
+			allRooms: null, // no change
+			rooms: null, // modifications
+			roomsDate: null, 
 			roomBook: false,
 			roomBookInfos: null,
 			submit: false,
@@ -92,19 +93,21 @@ export default {
 		document.getElementById('myDate').setAttribute("min", newdate);
 	},
 
-	created() {
-		this.rooms = roomsJSON.rooms;
+	async created() {
+		const res = await axios.get('http://localhost:3000/api/rooms');
+		this.rooms = res.data.rooms
+		this.allRooms = res.data.rooms //no modifications (initial rooms)
 	},
 
 	methods: {
 
-		filter: function(e) {
+		filter: async function(e) {
 			if (this.checkedEquipement.includes(e.target.value)) {
 				// delete equipement
 				if (this.roomsDate === undefined || this.roomsDate === null) {
 					// if no room is booked inside BDD
 					if (this.checkedEquipement.length === 1) {
-						this.rooms = roomsJSON.rooms;
+						this.rooms = this.allRooms
 					} else {
 						const item = this.checkedEquipement.filter(item => item !== e.target.value)
 						const newRoom = tools.findRoomFilter(roomsJSON.rooms, item[0])
@@ -158,7 +161,7 @@ export default {
 				const res = await axios.get('http://localhost:3000/api/books')
 				this.date = date;
 				this.hour = hour;
-				this.rooms = roomsJSON.rooms;
+				this.rooms = this.allRooms
 				if (res.data.length !== 0) {
 					const allReservation = res.data;
 					// find all rooms which are booked on this date and hour
@@ -179,8 +182,8 @@ export default {
 						});
 					}
 					else {
-						this.rooms = roomsJSON.rooms
-						this.roomsDate = roomsJSON.rooms
+						this.rooms = this.allRooms
+						this.roomsDate = this.allRooms
 						izitoast.success({
 							message: "You can book a room",
 							position: 'topRight'
