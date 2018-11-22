@@ -29,9 +29,9 @@ exports.create_a_book = function (req, res) {
         if (book) {
             // send reservation inside json
             // check if file exist or not
-            fs.exists('myjsonfile.json', function(exists) { 
+            fs.exists('bookingFile.json', function(exists) { 
                 if (exists) { 
-                    fs.readFile('myjsonfile.json', function readFileCallback(err, data){
+                    fs.readFile('bookingFile.json', function readFileCallback(err, data){
                         if (err){
                             console.log(err);
                         } else {
