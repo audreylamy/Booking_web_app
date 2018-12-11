@@ -23,7 +23,7 @@ docker run --name=mongodb -d -p 27017:27017 -v data:/data/db mongo
   
 2/ Git clone the repository
 ```
-https://github.com/audreylamy/Stationf_test.git
+https://github.com/audreylamy/Booking_web_app.git
 ```
 3/ Install npm (inside server et client)
 ```
